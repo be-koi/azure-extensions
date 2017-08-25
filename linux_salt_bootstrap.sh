@@ -7,6 +7,21 @@ set -u
 readonly MASTER_CONFIG='file_roots:,  base:,    - /srv/salt,    - /srv/formulas,    - /srv/salt/roles,pillar_roots:,  base:,    - /srv/pillar,  dev:,    - /srv/pillar/dev,  production:,    - /srv/pillar/production'
 
 
+function bootstrap_salt_master() {
+  tmp=$(mktemp -d)
+  yum install -y python-pip
+  pip install blobxfer
+  #
+  cd $tmp
+  #blobxfer --download mystorageacct container0 mylocalfile.txt --saskey <really_long_key>
+  blobxfer --download $2 $3 $4 --saskey $5
+  tar xzf *tgz
+  mv -f /srv "/srv.$(date +%s)"
+  mv dist /srv
+  chown -R root: /srv
+  systemctl restart salt-master
+}
+
 function install_salt_repo() {
   rpm --import https://repo.saltstack.com/yum/redhat/7/x86_64/archive/2016.3.1/SALTSTACK-GPG-KEY.pub
   local repofile='/etc/yum.repos.d/saltstack.repo'
@@ -27,8 +42,8 @@ function install_salt_master() {
     systemctl enable $service.service
     systemctl start $service.service
   done
+  bootstrap_salt_master $2 $3 $4 $5
 }
-
 
 function install_salt_minion() {
   local master=$1
@@ -42,7 +57,7 @@ function install_salt_minion() {
 
 main() {
   if [[ $1 == 'master' ]]; then
-     install_salt_master
+     install_salt_master $2 $3 $4 $5
   else
      install_salt_minion $2
   fi
