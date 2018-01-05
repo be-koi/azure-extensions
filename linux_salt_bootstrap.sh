@@ -11,8 +11,8 @@ readonly MASTER_CONFIG='file_roots:,  base:,    - /srv/salt,    - /srv/formulas,
 function install_salt_repo() {
   yum install -y wget
   cd /tmp
-  #wget https://repo.saltstack.com/yum/redhat/salt-repo-2017.7-1.el7.noarch.rpm
-  #rpm -i /tmp/salt-repo-2017.7-1.el7.noarch.rpm
+  wget https://repo.saltstack.com/yum/redhat/salt-repo-2017.7-1.el7.noarch.rpm
+  rpm -i /tmp/salt-repo-2017.7-1.el7.noarch.rpm
   yum clean all
 }
 
