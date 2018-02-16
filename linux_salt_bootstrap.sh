@@ -33,6 +33,7 @@ function install_salt_minion() {
   echo "master: $master" > /etc/salt/minion
   systemctl enable salt-minion.service
   systemctl start salt-minion.service
+  systemctl restart salt-minion.service
 }
 
 
