@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+## TODO:  accept salt version as an arg (include py2 vs py3 options or force a legacy script to exist?)
 
 set -e
 set -u
@@ -8,7 +9,17 @@ readonly MASTER_CONFIG='file_roots:,  base:,    - /srv/salt,    - /srv/formulas,
 
 
 
-function install_salt_repo() {
+function install_salt_repo_ubuntu() {
+  ## TODO:  grab ubuntu version to make multi-version
+  wget -O - https://repo.saltstack.com/apt/ubuntu/16.04/amd64/2017.7/SALTSTACK-GPG-KEY.pub | sudo apt-key add -
+  if [[ -f /etc/apt/sources.list.d/saltstack.list]]; then
+    echo "repo already added"
+  else
+    echo "deb http://repo.saltstack.com/apt/ubuntu/16.04/amd64/2017.7 xenial main" > /etc/apt/sources.list.d/saltstack.list
+  fi
+}
+
+function install_salt_repo_rhel() {
   yum install -y wget
   cd /tmp
   wget https://repo.saltstack.com/yum/redhat/salt-repo-2017.7-1.el7.noarch.rpm
@@ -17,7 +28,7 @@ function install_salt_repo() {
 }
 
 function install_salt_master() {
-  install_salt_repo
+  install_salt_repo_rhel
   yum install salt-master salt-minion -y
   echo -e "$MASTER_CONFIG" | tr ',' '\n' > /etc/salt/master
   for service in salt-master salt-minion; do
@@ -28,9 +39,15 @@ function install_salt_master() {
 
 function install_salt_minion() {
   local master=$1
-  install_salt_repo
-  yum install salt-minion -y
-  echo "master: $master" > /etc/salt/minion
+  if [[ $(uname -a) =~ 'Ubuntu' ]]; then
+    install_salt_repo_ubuntu
+    apt update
+    apt install -y salt-minion
+  else
+    install_salt_repo_rhel
+    yum install salt-minion -y
+  fi
+  echo "master: $master" > /etc/salt/minion.d/master.conf
   systemctl enable salt-minion.service
   systemctl start salt-minion.service
   systemctl restart salt-minion.service
