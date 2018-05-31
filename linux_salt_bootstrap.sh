@@ -12,7 +12,7 @@ readonly MASTER_CONFIG='file_roots:,  base:,    - /srv/salt,    - /srv/formulas,
 function install_salt_repo_ubuntu() {
   ## TODO:  grab ubuntu version to make multi-version
   wget -O - https://repo.saltstack.com/apt/ubuntu/16.04/amd64/2017.7/SALTSTACK-GPG-KEY.pub | sudo apt-key add -
-  if [[ -f /etc/apt/sources.list.d/saltstack.list]]; then
+  if [ -f /etc/apt/sources.list.d/saltstack.list]; then
     echo "repo already added"
   else
     echo "deb http://repo.saltstack.com/apt/ubuntu/16.04/amd64/2017.7 xenial main" > /etc/apt/sources.list.d/saltstack.list
