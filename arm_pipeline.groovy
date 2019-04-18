@@ -1,6 +1,6 @@
 pipeline {
   agent {
-    label "saltmaster"
+    label "deployment_master"
   }
 
   stages {
