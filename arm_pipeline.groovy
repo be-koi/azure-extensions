@@ -35,8 +35,9 @@ pipeline {
         sh '''
             rm -rf /arm.bak
             mv /cdi-arm /arm.bak
+            mkdir /cdi-arm
             cp -f ./salt_artifacts/latest_artifacts_arm.tgz /tmp/
-            tar xzfp /tmp/latest_artifacts_arm.tgz -C /
+            tar xzfp /tmp/latest_artifacts_arm.tgz -C /cdi-arm/
 
             /bin/md5sum ./salt_artifacts/latest_artifacts_arm.tgz |awk {'print $1'} > ./salt_artifacts/.latest_md5
         '''
