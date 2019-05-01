@@ -8,8 +8,8 @@ pipeline {
       steps {
         echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
         sh '''
-            blobxfer download --storage-account $STORAGE_ACCOUNT --storage-account-key "$STORAGE_ACCOUNT_KEY" --remote-path $REMOTE_PATH/latest_artifacts_master.tgz --local-path ./salt_artifacts
-            CURRENT_MD5=`/bin/md5sum ./salt_artifacts/latest_artifacts_master.tgz |awk {'print $1'}`
+            blobxfer download --storage-account $STORAGE_ACCOUNT --storage-account-key "$STORAGE_ACCOUNT_KEY" --remote-path $REMOTE_PATH/latest_artifacts_${fork}.tgz --local-path ./salt_artifacts
+            CURRENT_MD5=`/bin/md5sum ./salt_artifacts/latest_artifacts_${fork}.tgz |awk {'print $1'}`
             if [ -f "./salt_artifacts/.latest_md5" ]
             then
             LATEST_MD5=`cat ./salt_artifacts/.latest_md5`
@@ -33,10 +33,10 @@ pipeline {
         echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
         sh '''
             rm -rf /srv.bak && systemctl stop salt-master && mv /srv /srv.bak
-            cp -f ./salt_artifacts/latest_artifacts_master.tgz /tmp/
-            tar xzfp /tmp/latest_artifacts_master.tgz -C / && mv /dist /srv && systemctl start salt-master
+            cp -f ./salt_artifacts/latest_artifacts_${fork}.tgz /tmp/
+            tar xzfp /tmp/latest_artifacts_${fork}.tgz -C / && mv /dist /srv && systemctl start salt-master
 
-            /bin/md5sum ./salt_artifacts/latest_artifacts_master.tgz |awk {'print $1'} > ./salt_artifacts/.latest_md5
+            /bin/md5sum ./salt_artifacts/latest_artifacts_${fork}.tgz |awk {'print $1'} > ./salt_artifacts/.latest_md5
         '''
       }
     }
